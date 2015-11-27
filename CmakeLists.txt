@@ -24,6 +24,8 @@ set(ARM_FLAGS "-mcpu=cortex-m0 -mthumb -Og")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ARM_FLAGS} -std=gnu++11 -fabi-version=0 -fno-exceptions -fno-rtti -fno-use-cxa-atexit -fno-threadsafe-statics -ffunction-sections -g")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 ${ARM_FLAGS} -ffunction-sections -fmessage-length=0 -fsigned-char -fdata-sections -ffreestanding -fno-move-loop-invariants -Wall -Wextra -g")
+
+# Linker flags (requires mem.ld, libs.ld and sections.ld generated from ecplipse structure to be in root)
 set(CMAKE_EXE_LINKER_FLAGS "${ARM_FLAGS} -g -Wl,--library-path=\"${PROJECT_SOURCE_DIR}\" -T mem.ld -T libs.ld -T sections.ld -Xlinker --gc-sections -Wl,-Map=${PROJECT_NAME}.map --specs=nano.specs")
 
 # Compiler invocation details
