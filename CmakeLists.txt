@@ -1,0 +1,54 @@
+# -------------------------------------------------------------------
+# --- CMAKELISTS for STM32F0x in Jetbrains CLion --------------------
+# -------------------------------------------------------------------
+# Adapted from https://youtrack.jetbrains.com/issue/CPP-871#comment=27-840304
+
+cmake_minimum_required(VERSION 3.3)
+include(CMakeForceCompiler)
+project(<PROJECT_NAME>)
+# -------------------------------------------------------------------
+
+# Processor
+set(CMAKE_SYSTEM_PROCESSOR cortex-m0)
+SET(CMAKE_SYSTEM_NAME Generic)
+
+# Cross compiler (requires arm-non-eabi* to be in PATH)
+CMAKE_FORCE_C_COMPILER(arm-none-eabi-gcc GNU)
+CMAKE_FORCE_CXX_COMPILER(arm-none-eabi-g++ GNU)
+
+# Executable type
+set(CMAKE_EXECUTABLE_SUFFIX ".elf")
+
+# Compiler flags
+set(ARM_FLAGS "-mcpu=cortex-m0 -mthumb -Og")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ARM_FLAGS} -std=gnu++11 -fabi-version=0 -fno-exceptions -fno-rtti -fno-use-cxa-atexit -fno-threadsafe-statics -ffunction-sections -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 ${ARM_FLAGS} -ffunction-sections -fmessage-length=0 -fsigned-char -fdata-sections -ffreestanding -fno-move-loop-invariants -Wall -Wextra -g")
+set(CMAKE_EXE_LINKER_FLAGS "${ARM_FLAGS} -g -Wl,--library-path=\"${PROJECT_SOURCE_DIR}\" -T mem.ld -T libs.ld -T sections.ld -Xlinker --gc-sections -Wl,-Map=${PROJECT_NAME}.map --specs=nano.specs")
+
+# Compiler invocation details
+set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_C_COMPILER> <LINK_FLAGS> -o <TARGET> <OBJECTS>")
+set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_CXX_COMPILER> <LINK_FLAGS> -o <TARGET> <OBJECTS>")
+# -------------------------------------------------------------------
+
+# Global definitions
+add_definitions(-DDEBUG -DUSE_FULL_ASSERT -DSTM32F051x8 -DHSE_VALUE=8000000)
+
+# IDE indexing includes (headers)
+include_directories(<HEADER_PATHS>)
+
+# Source files for compilation
+set(SOURCE_FILES <SOURCE_FILES>)
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+# Print executable size after build complete
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND arm-none-eabi-size --format=berkeley ${PROJECT_NAME}.elf)
+
+# Search for programs in the build host directories
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM	NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY	ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE	ONLY)
